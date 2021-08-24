@@ -9,14 +9,19 @@
 
   .slideBar {
     height: 100%;
-    background: #9c9cff;
+    background: #9bc9ff;
     position: absolute;
     top: 0;
     cursor: move;
+
+    &:hover {
+      background: #7fb8fd;
+    }
   }
 
   .resizeBar {
     position: absolute;
+    border: 1px solid #6d6d6d;
     width: 4px;
     height: 16px;
     background: #ffffff;

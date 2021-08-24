@@ -22,7 +22,7 @@ const App = () => {
         <div className="App">
             <DataZoomControl
                 width={500}
-                height={20}
+                height={24}
                 onBarMove={handleBarMove}
                 onBarMoveEnd={handleBarMoveEnd}
                 onBarResize={handleBarResize}

@@ -12,6 +12,8 @@ const DataZoomControl: React.FC<DataZoomControlProps> = ({
                                                          }) => {
     const [start, setStart] = useState(0);
     const [end, setEnd] = useState(width);
+    const mouseWheelMoveStep = 5;   // 鼠标每次滚动条滚动，移动
+    const mouseWheelResizeStep = 1; // 鼠标每次滚动条滚动，缩放
 
     // 滑动条移动
     const handleMoveBarMouseDown = (event: any) => {
@@ -88,8 +90,37 @@ const DataZoomControl: React.FC<DataZoomControlProps> = ({
         document.addEventListener("mouseup", mouseUpEvent);
     }
 
-    return <div className={"DataZoomControl"}
-                style={{width: `${width}px`, height: `${height}px`}}>
+    const handleMouseWheel = (event: any) => {
+        let newStart = start;
+        let newEnd = end;
+
+        // 向右移动
+        if (event.deltaY > 0) {
+            newStart += mouseWheelMoveStep;
+            newEnd += mouseWheelMoveStep;
+        } else {  // 向左移动
+            newStart -= mouseWheelMoveStep;
+            newEnd -= mouseWheelMoveStep;
+        }
+
+        if (newStart >= 0 && newEnd <= width) {
+            setStart(newStart);
+            setEnd(newEnd);
+        }
+
+        // 触发滚动条移动事件
+        if (onBarMove) {
+            onBarMove();
+        }
+        if (onBarMoveEnd) {
+            onBarMoveEnd();
+        }
+    }
+
+    return <div
+        className={"DataZoomControl"}
+        onWheel={handleMouseWheel}
+        style={{width: `${width}px`, height: `${height}px`}}>
 
         {/*轨道*/}
         <div className={"trail"}/>
@@ -102,12 +133,12 @@ const DataZoomControl: React.FC<DataZoomControlProps> = ({
         {/*左变化条*/}
         <div className={"resizeBar"}
              onMouseDown={(e) => handleResizeBarMouseDown(e, "left")}
-             style={{left: `${start - 2}px`, top: `${(height - 16) / 2}px`}}/>
+             style={{left: `${start - 3}px`, top: `${(height - 18) / 2}px`}}/>
 
         {/*右变化条*/}
         <div className={"resizeBar"}
              onMouseDown={(e) => handleResizeBarMouseDown(e, "right")}
-             style={{left: `${end - 2}px`, top: `${(height - 16) / 2}px`}}/>
+             style={{left: `${end - 3}px`, top: `${(height - 18) / 2}px`}}/>
     </div>
 };
 
