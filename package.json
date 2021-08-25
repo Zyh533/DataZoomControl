@@ -7,7 +7,7 @@
     "lib",
     "es"
   ],
-  "name": "mdatazoomcontrol",
+  "name": "sizer_datazoomcontrol",
   "version": "0.1.1",
   "dependencies": {
     "@testing-library/jest-dom": "^5.11.4",
