@@ -1,6 +1,14 @@
 import React, {useState} from 'react';
-import {DataZoomControlProps} from "./index";
 import "../css/DataZoomControl.scss";
+
+export type DataZoomControlProps = {
+    width: number,
+    height: number,
+    onBarMove?: () => void,
+    onBarMoveEnd?: () => void,
+    onBarResize?: () => void,
+    onBarResizeEnd?: () => void
+}
 
 const DataZoomControl: React.FC<DataZoomControlProps> = ({
                                                              width,
