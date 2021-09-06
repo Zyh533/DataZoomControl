@@ -23,6 +23,7 @@ const App = () => {
             <DataZoomControl
                 width={500}
                 height={24}
+                orientation={"horizontal"}
                 onBarMove={handleBarMove}
                 onBarMoveEnd={handleBarMoveEnd}
                 onBarResize={handleBarResize}

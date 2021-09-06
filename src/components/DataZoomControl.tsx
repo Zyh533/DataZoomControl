@@ -1,30 +1,72 @@
-import React, {useState} from 'react';
-import {DataZoomControlProps} from "./index";
+import React, {useMemo, useState} from 'react';
+import {DataZoomControlProps, styleDefault} from "./index";
 import "../css/DataZoomControl.scss";
 
 const DataZoomControl: React.FC<DataZoomControlProps> = ({
                                                              width,
                                                              height,
+                                                             orientation = "horizontal",
+                                                             styleConfg = styleDefault,
                                                              onBarMove,
                                                              onBarResize,
                                                              onBarMoveEnd,
                                                              onBarResizeEnd
                                                          }) => {
+    // 状态数据
     const [start, setStart] = useState(0);
-    const [end, setEnd] = useState(width);
-    const mouseWheelMoveStep = 5;   // 鼠标每次滚动条滚动，移动
-    const mouseWheelResizeStep = 1; // 鼠标每次滚动条滚动，缩放
+    const [end, setEnd] = useState(orientation === "horizontal" ? width : height);
+
+    // 常量
+    const mouseWheelMoveStep: number = 10;   // 鼠标每次滚动条滚动，移动
+
+    // 布局方式是否为水平
+    const isHorizontal: boolean = orientation === "horizontal";
+
+    // 滑动条样式
+    const silderBarStyle = useMemo(() => {
+        return {
+            width: isHorizontal ? `${end - start}px` : "100%",
+            height: !isHorizontal ? `${end - start}px` : "100%",
+            left: isHorizontal ? `${start}px` : 0,
+            top: !isHorizontal ? `${start}px` : 0,
+            background: styleConfg?.slideBar?.background ? styleConfg?.slideBar?.background : styleDefault.slideBar?.background
+        };
+    }, [styleConfg, start, end, isHorizontal]);
+
+    // 左resizebar样式
+    const leftResizeBarStyle = useMemo(() => {
+        return {
+            width: isHorizontal ? 4 : width * 0.7,
+            height: isHorizontal ? height * 0.7 : 4,
+            left: isHorizontal ? `${start - 3}px` : `${0.15 * width}px`,
+            top: isHorizontal ? `${0.15 * height}px` : `${start - 3}px`,
+            cursor: isHorizontal ? "w-resize" : "n-resize"
+        };
+    }, [isHorizontal, start, width, height]);
+
+    // 右resizebar样式
+    const rightResizeBarStyle = useMemo(() => {
+        return {
+            width: isHorizontal ? 4 : width * 0.7,
+            height: isHorizontal ? height * 0.7 : 4,
+            left: isHorizontal ? `${end - 3}px` : `${0.15 * width}px`,
+            top: isHorizontal ? `${0.15 * height}px` : `${end - 3}px`,
+            cursor: isHorizontal ? "w-resize" : "n-resize"
+        };
+    }, [isHorizontal, end, width, height]);
 
     // 滑动条移动
     const handleMoveBarMouseDown = (event: any) => {
         const startX = event.clientX;
+        const startY = event.clientY;
         const mouseMoveEvent = (e: any) => {
-            const endX = e.clientX;
-            const moveLength = endX - startX;
+            const limit = isHorizontal ? width : height;
+            const moveLength = isHorizontal ? (e.clientX - startX) : (e.clientY - startY);
             const newStart = start + moveLength;
             const newEnd = end + moveLength;
 
-            if (newStart >= 0 && newEnd <= width) {
+            // 修改位置
+            if (newStart >= 0 && newEnd <= limit) {
                 setStart(newStart);
                 setEnd(newEnd);
                 if (onBarMove) {
@@ -46,17 +88,20 @@ const DataZoomControl: React.FC<DataZoomControlProps> = ({
     // 修改滑动条长度
     const handleResizeBarMouseDown = (event: any, size: "left" | "right") => {
         const startX = event.clientX;
+        const startY = event.clientY;
         let newStart = start;
         let newEnd = end;
 
         const mouseMoveEvent = (e: any) => {
             const endX = e.clientX;
-            const moveLength = endX - startX;
+            const endY = e.clientY;
+            const moveLength = isHorizontal ? (endX - startX) : (endY - startY);
+            const limit = isHorizontal ? width : height;
 
             if (size === "left") {
                 newStart = start + moveLength;
-                if (newStart >= width) {
-                    newStart = width;
+                if (newStart >= limit) {
+                    newStart = limit;
                 } else if (newStart >= end) {
                     newStart = end;
                 } else if (newStart <= 0) {
@@ -65,8 +110,8 @@ const DataZoomControl: React.FC<DataZoomControlProps> = ({
                 setStart(newStart);
             } else {
                 newEnd = end + moveLength;
-                if (newEnd > width) {
-                    newEnd = width;
+                if (newEnd > limit) {
+                    newEnd = limit;
                 } else if (newEnd <= start) {
                     newEnd = start;
                 } else if (newEnd <= 0) {
@@ -88,11 +133,13 @@ const DataZoomControl: React.FC<DataZoomControlProps> = ({
         }
         document.addEventListener("mousemove", mouseMoveEvent);
         document.addEventListener("mouseup", mouseUpEvent);
-    }
+    };
 
+    // 鼠标滚动移动滑动条位置
     const handleMouseWheel = (event: any) => {
         let newStart = start;
         let newEnd = end;
+        let limit = isHorizontal ? width : height;
 
         // 向右移动
         if (event.deltaY > 0) {
@@ -103,7 +150,7 @@ const DataZoomControl: React.FC<DataZoomControlProps> = ({
             newEnd -= mouseWheelMoveStep;
         }
 
-        if (newStart >= 0 && newEnd <= width) {
+        if (newStart >= 0 && newEnd <= limit) {
             setStart(newStart);
             setEnd(newEnd);
         }
@@ -115,7 +162,7 @@ const DataZoomControl: React.FC<DataZoomControlProps> = ({
         if (onBarMoveEnd) {
             onBarMoveEnd();
         }
-    }
+    };
 
     return <div
         className={"DataZoomControl"}
@@ -123,22 +170,24 @@ const DataZoomControl: React.FC<DataZoomControlProps> = ({
         style={{width: `${width}px`, height: `${height}px`}}>
 
         {/*轨道*/}
-        <div className={"trail"}/>
+        <div className={"trail"} style={{
+            background: styleConfg?.trail?.background ? styleConfg?.trail?.background : styleDefault.trail?.background
+        }}/>
 
         {/*滑动条*/}
         <div className={"slideBar"}
              onMouseDown={handleMoveBarMouseDown}
-             style={{width: `${end - start}px`, left: `${start}px`}}/>
+             style={silderBarStyle}/>
 
         {/*左变化条*/}
         <div className={"resizeBar"}
              onMouseDown={(e) => handleResizeBarMouseDown(e, "left")}
-             style={{left: `${start - 3}px`, top: `${(height - 18) / 2}px`}}/>
+             style={leftResizeBarStyle}/>
 
         {/*右变化条*/}
         <div className={"resizeBar"}
              onMouseDown={(e) => handleResizeBarMouseDown(e, "right")}
-             style={{left: `${end - 3}px`, top: `${(height - 18) / 2}px`}}/>
+             style={rightResizeBarStyle}/>
     </div>
 };
 
