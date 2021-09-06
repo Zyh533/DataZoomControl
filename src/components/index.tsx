@@ -21,8 +21,8 @@ export interface DataZoomControlProps {
     height: number,
     orientation?: "horizontal" | "vertical",
     styleConfg?: StyleType,
-    onBarMove?: () => void,
-    onBarMoveEnd?: () => void,
-    onBarResize?: () => void,
-    onBarResizeEnd?: () => void
+    onBarMove?: (starta: number, end: number) => void,
+    onBarMoveEnd?: (starta: number, end: number) => void,
+    onBarResize?: (starta: number, end: number) => void,
+    onBarResizeEnd?: (starta: number, end: number) => void
 }

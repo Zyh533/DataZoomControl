@@ -59,18 +59,20 @@ const DataZoomControl: React.FC<DataZoomControlProps> = ({
     const handleMoveBarMouseDown = (event: any) => {
         const startX = event.clientX;
         const startY = event.clientY;
+        let newStart = start
+        let newEnd = end
         const mouseMoveEvent = (e: any) => {
             const limit = isHorizontal ? width : height;
             const moveLength = isHorizontal ? (e.clientX - startX) : (e.clientY - startY);
-            const newStart = start + moveLength;
-            const newEnd = end + moveLength;
+            newStart = start + moveLength;
+            newEnd = end + moveLength;
 
             // 修改位置
             if (newStart >= 0 && newEnd <= limit) {
                 setStart(newStart);
                 setEnd(newEnd);
                 if (onBarMove) {
-                    onBarMove();
+                    onBarMove(newStart, newEnd);
                 }
             }
         }
@@ -78,7 +80,7 @@ const DataZoomControl: React.FC<DataZoomControlProps> = ({
             document.removeEventListener("mousemove", mouseMoveEvent);
             document.removeEventListener("mouseup", mouseUpEvent);
             if (onBarMoveEnd) {
-                onBarMoveEnd();
+                onBarMoveEnd(newStart, newEnd);
             }
         }
         document.addEventListener("mousemove", mouseMoveEvent);
@@ -120,7 +122,7 @@ const DataZoomControl: React.FC<DataZoomControlProps> = ({
                 setEnd(newEnd);
             }
             if (onBarResize) {
-                onBarResize();
+                onBarResize(newStart, newEnd);
             }
         }
 
@@ -128,7 +130,7 @@ const DataZoomControl: React.FC<DataZoomControlProps> = ({
             document.removeEventListener("mousemove", mouseMoveEvent);
             document.removeEventListener("mouseup", mouseUpEvent);
             if (onBarResizeEnd) {
-                onBarResizeEnd();
+                onBarResizeEnd(newStart, newEnd);
             }
         }
         document.addEventListener("mousemove", mouseMoveEvent);
@@ -156,11 +158,8 @@ const DataZoomControl: React.FC<DataZoomControlProps> = ({
         }
 
         // 触发滚动条移动事件
-        if (onBarMove) {
-            onBarMove();
-        }
         if (onBarMoveEnd) {
-            onBarMoveEnd();
+            onBarMoveEnd(newStart, newEnd);
         }
     };
 

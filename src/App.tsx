@@ -3,18 +3,18 @@ import './App.css';
 import DataZoomControl from "./components/DataZoomControl";
 
 const App = () => {
-    const handleBarMove = () => {
+    const handleBarMove = (starta: number, end: number) => {
         console.log("bar move");
     }
-    const handleBarMoveEnd = () => {
+    const handleBarMoveEnd = (starta: number, end: number) => {
         console.log("bar move end");
     }
 
-    const handleBarResize = () => {
+    const handleBarResize = (starta: number, end: number) => {
         console.log("bar resize");
     }
 
-    const handleBarResizeEnd = () => {
+    const handleBarResizeEnd = (starta: number, end: number) => {
         console.log("bar resize end");
     }
 
